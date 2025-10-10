@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معرض أعمالي - أسامة عمران أحمد</title>
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/XvYnZFWC/1.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body oncontextmenu="return false;" class="page-container">
+    <div class="content-wrap">
+        <header id="main-header">
+            <nav class="navbar-scroll">
+                <div class="logo">
+                    <img src="https://i.postimg.cc/XvYnZFWC/1.png" alt="Favicon Logo" class="favicon-img">
+                    <span class="logo-name" data-translate="name">أسامة عمران أحمد</span>
+                </div>
+                <div class="header-controls">
+                    <button id="lang-switcher" class="lang-switcher" data-lang="en">EN</button>
+                    <ul class="nav-links desktop-links">
+                        <li><a href="index.html#about" data-translate="menu_about">من أنا</a></li>
+                        <li><a href="index.html#services" data-translate="menu_services">خدماتي</a></li>
+                        <li><a href="#top" data-translate="menu_portfolio">أعمالي</a></li>
+                        <li><a href="index.html#contact" data-translate="menu_contact">تواصل معي</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        
+        <div class="portfolio-header">
+            <h1 data-translate="page_title">معرض أعمالي</h1>
+        </div>
+    
+        <main id="portfolio-main-grid" class="portfolio-full-grid">
+            <p class="text-center text-gray-500 loading-message" style="grid-column: 1 / -1;" data-translate="loading_all">جاري تحميل الأعمال...</p>
+        </main>
+    </div>
+    
+    <a href="https://wa.me/+201095678392" target="_blank" class="floating-whatsapp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <footer>
+        <p>&copy; 2024 <span data-translate="name_footer">أسامة عمران أحمد</span>. <span data-translate="all_rights">جميع الحقوق محفوظة.</span></p>
+        <p class="developer-info">
+            <span data-translate="dev_text">تم التصميم والتطوير بواسطة: سامح رضا</span>
+            <a href="https://wa.me/+201023160657" target="_blank" class="dev-social-icon">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+            <a href="https://www.facebook.com/share/19aT46qpYU/" target="_blank" class="dev-social-icon">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+        </p>
+    </footer>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        
+        const languageContent = {
+            ar: {
+                name: "أسامة عمران أحمد", page_title: "معرض أعمالي", menu_about: "من أنا", menu_services: "خدماتي", menu_portfolio: "أعمالي", menu_contact: "تواصل معي",
+                loading_all: "جاري تحميل الأعمال...", name_footer: "أسامة عمران أحمد", all_rights: "جميع الحقوق محفوظة.",
+                dev_text: "تم التصميم والتطوير بواسطة: سامح رضا", dir: "rtl"
+            },
+            en: {
+                name: "Osama Omran Ahmed", page_title: "My Portfolio", menu_about: "About Me", menu_services: "Services", menu_portfolio: "Portfolio", menu_contact: "Contact",
+                loading_all: "Loading projects...", name_footer: "Osama Omran Ahmed", all_rights: "All Rights Reserved.",
+                dev_text: "Designed and Developed by: Sameh Reda", dir: "ltr"
+            }
+        };
+
+        let currentLang = localStorage.getItem('lang') || 'ar';
+        const langSwitcher = document.getElementById('lang-switcher');
+        
+        function updateContent(lang) {
+            const content = languageContent[lang];
+            document.documentElement.lang = lang;
+            document.body.dir = content.dir;
+            document.title = content.page_title + " | " + content.name;
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                el.textContent = content[key];
+            });
+            langSwitcher.textContent = lang === 'ar' ? 'EN' : 'عربي';
+            langSwitcher.setAttribute('data-lang', lang === 'ar' ? 'en' : 'ar');
+            localStorage.setItem('lang', lang);
+            currentLang = lang;
+            loadPortfolioData();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateContent(currentLang);
+            langSwitcher.addEventListener('click', (e) => {
+                const nextLang = e.target.getAttribute('data-lang');
+                updateContent(nextLang);
+            });
+        });
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGZ-bm38jxRpGrMj8OrhrC939ZOYVDQbQ",
+            authDomain: "osama-omran.firebaseapp.com",
+            projectId: "osama-omran",
+            storageBucket: "osama-omran.firebasestorage.app",
+            messagingSenderId: "938044424805",
+            appId: "1:938044424805:web:be554595d4baee0fb97c8c",
+            measurementId: "G-BE4TKL720R"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = 'default-app-id';
+        const portfolioCollectionPath = `artifacts/${appId}/public/data/portfolio_items`;
+        const portfolioGrid = document.getElementById('portfolio-main-grid');
+
+        // --- Lightbox Logic ---
+        function createLightbox() {
+            if (document.getElementById('lightbox')) return;
+            const lightboxHTML = `
+                <div id="lightbox" class="lightbox-overlay">
+                    <span class="lightbox-close">&times;</span>
+                    <div class="lightbox-content">
+                        <img src="" class="lightbox-image">
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', lightboxHTML);
+
+            const lightbox = document.getElementById('lightbox');
+            const closeBtn = lightbox.querySelector('.lightbox-close');
+
+            const closeLightbox = () => lightbox.classList.remove('visible');
+
+            closeBtn.addEventListener('click', closeLightbox);
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) closeLightbox();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeLightbox();
+            });
+        }
+
+        function openLightbox(imageUrl) {
+            const lightbox = document.getElementById('lightbox');
+            if (!lightbox) return;
+            lightbox.querySelector('.lightbox-image').src = imageUrl;
+            lightbox.classList.add('visible');
+        }
+
+        createLightbox(); // Initialize lightbox on page load
+        // --- End Lightbox Logic ---
+        
+        async function authenticateAndLoad() {
+             try {
+                await signInAnonymously(auth);
+            } catch (error) {
+                console.error("Authentication Error:", error);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadPortfolioData();
+            } else {
+                authenticateAndLoad();
+            }
+        });
+
+        function loadPortfolioData() {
+            const q = query(collection(db, portfolioCollectionPath));
+            portfolioGrid.innerHTML = `<p class="text-center text-gray-500" style="grid-column: 1 / -1;">${languageContent[currentLang].loading_all}</p>`;
+            onSnapshot(q, (snapshot) => {
+                const allProjects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProjects(allProjects);
+            }, (error) => {
+                const message = currentLang === 'ar' ? 'حدث خطأ أثناء تحميل الأعمال.' : 'An error occurred while loading projects.';
+                console.error("Error loading portfolio data:", error);
+                portfolioGrid.innerHTML = `<p class="text-center text-red-500" style="grid-column: 1 / -1;">${message}</p>`;
+            });
+        }
+        function renderProjects(projects) {
+            portfolioGrid.innerHTML = '';
+            if (projects.length === 0) {
+                const message = currentLang === 'ar' ? 'لا توجد أعمال لعرضها حاليًا.' : 'No projects to display.';
+                portfolioGrid.innerHTML = `<p class="text-center text-gray-500" style="grid-column: 1 / -1;">${message}</p>`;
+                return;
+            }
+            projects.forEach(project => {
+                const item = document.createElement('div');
+                item.className = 'portfolio-full-item';
+                item.innerHTML = `<img src="${project.imageUrl}" alt="Project Image" ondragstart="return false;" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/400x300/D2B48C/4A2C2A?text=Image'">`;
+                
+                // Add click listener to open lightbox
+                item.addEventListener('click', () => {
+                    openLightbox(project.imageUrl);
+                });
+
+                portfolioGrid.appendChild(item);
+            });
+        }
+        authenticateAndLoad();
+    </script>
+</body>
+</html>
